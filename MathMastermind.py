@@ -39,3 +39,29 @@ def setup_ui():
         a, b = st.columns([3, 1])
         solve = a.form_submit_button("🧠 Solve", use_container_width=True)
         level = b.selectbox("Level", ["Basic", "Intermediate", "Avanced"], index=1)
+        
+        if solve:
+            if not q.strip(): st.warning("⚠️ Enter a problem first.")
+            else:
+                with st.spinner("Solving..."):
+                    ans = math_generate(q.strip(), level)
+                st.session_state.history.insert(0, {"q":q.strip(), "a":ans, "lvl":level})
+                st.session_state.k += 1; st.rerun()
+        
+        if not st.session_state.history: return
+        st.markdown("### 🧾 Solution History (Latest First)")
+        st.markdown("""<style>
+        .box{max-height:500px;overflow-y:auto;border:2px solid #4CAF50;padding:12px;background:#f7fbff;border-radius:10px}
+        .q{font-weight:700;color:#2E7D32;margin-top:12px}
+        .lvl{display:inline-block;background:#FF9800;color:#fff;padding:2px 8px;border-radius:12px;font-size:12px;margin-left:8px}
+        .a{white-space:pre-wrap;color:#1B5E20;background:#fff;padding:10px;border-radius:8px;border-left:4px solid #4CAF50;margin:6px 0 14px}
+        </style>""", unsafe_allow_html=True)
+
+        html = '<div class="box">'
+        for i, h in enumerate(st.session_state.history, 1):
+            html += f'<div class="q">Q{i}:{h["q"]}<span class="lvl">{h["lvl"]}</span></div>'
+            html += f'<div class="a">{h["a"]}</div>'
+        st.markdown(html + "</div>", unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    setup_ui()
